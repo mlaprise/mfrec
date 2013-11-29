@@ -1,40 +1,43 @@
-import sys
+#!/usr/bin/env python
+from ez_setup import use_setuptools
+use_setuptools()
 
-from setuptools import setup, find_packages
+import os
 
+from setuptools import setup, find_packages, Extension
+from distutils.command import build_ext
+import numpy
 
-stable = [l.split('#')[0].strip()
-          for l in open('requirements.txt').readlines()
-          if not l.startswith('#') and not l.startswith('-e')]
+VERSION = '0.0.1'
+DESCRIPTION = "Recommendation Engines based on Matrix methods"
+LONG_DESCRIPTION = """
+"""
 
-install_requires = stable + ['pminifier']
-tests_require = ['mock', 'coverage']
-lint_requires = ['pep8', 'pyflakes']
-setup_requires=[]
-
-if 'nosetests' in sys.argv[1:]:
-    setup_requires.append('nose')
-    setup_requires.append('nose-testconfig')
+CLASSIFIERS = filter(None, map(str.strip,
+"""
+Intended Audience :: Developers
+License :: OSI Approved :: MIT License
+Programming Language :: Python
+Operating System :: OS Independent
+Topic :: Utilities
+Topic :: Database :: Database Engines/Servers
+Topic :: Software Development :: Libraries :: Python Modules
+""".splitlines()))
 
 setup(
-    name='mage',
-    packages = find_packages(),
-    version='1.0',
-    url='https://github.com/Parsely/mage',
-    install_requires=install_requires,
-    tests_require=tests_require,
-    setup_requires=setup_requires,
-    extras_require={
-        'test': tests_require,
-        'all': install_requires + tests_require,
-        'lint': lint_requires,
-    },
-    dependency_links =[
-        # TODO: the below links don't install, it seems due to git+ssh not being supported.
-        # no good solutions online, so for now we'll just need to include all git dependencies
-        # in every project that needs them
-        #'git+ssh://git@github.com/Parsely/parselyutils.git#egg=ParselyUtils-dev',
-        #'git+ssh://git@github.com/Parsely/hll.git#egg=hll-dev',
-        'https://github.com/Parsely/pminifier/tarball/master#egg=PMinifier-dev',
-        ]
-    )
+    name="pds",
+    version=VERSION,
+    description=DESCRIPTION,
+    long_description=LONG_DESCRIPTION,
+    classifiers=CLASSIFIERS,
+    keywords=('recommendation', 'wrmf', 'matrix', 'factorization','svd'),
+    author="Martin Laprise",
+    author_email="mlaprise@gmail.com",
+    url="https://github.com/mlaprise/mfrec",
+    license="MIT License",
+    packages=find_packages(exclude=['ez_setup']),
+    platforms=['any'],
+    zip_safe=False,
+    install_requires=['numpy', 'cython'],
+    ext_modules = [Extension("als_implicit.pyx", ["mfrec/lib/als_implicit.c"], include_dirs=[numpy.get_include()])],
+)
