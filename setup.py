@@ -25,7 +25,7 @@ Topic :: Software Development :: Libraries :: Python Modules
 """.splitlines()))
 
 setup(
-    name="pds",
+    name="mfrec",
     version=VERSION,
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
@@ -39,5 +39,9 @@ setup(
     platforms=['any'],
     zip_safe=False,
     install_requires=['numpy', 'cython'],
-    ext_modules = [Extension("als_implicit.pyx", ["mfrec/lib/als_implicit.c"], include_dirs=[numpy.get_include()])],
+    ext_modules = [
+                   Extension("mfrec.lib.als_implicit", ["mfrec/lib/als_implicit.c"], include_dirs=[numpy.get_include()]),
+                   Extension("mfrec.lib.gd_estimator", ["mfrec/lib/gd_estimator.c"], include_dirs=[numpy.get_include()]),
+                   Extension("mfrec.lib.kmf_train", ["mfrec/lib/kmf_train.c"], include_dirs=[numpy.get_include()]),
+                  ],
 )
