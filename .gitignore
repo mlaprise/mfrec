@@ -1,2 +1,5 @@
 *.html
+*.pyc
+dist/
+mfrec.egg-info/
 lib/build/
