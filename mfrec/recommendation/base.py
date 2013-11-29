@@ -6,6 +6,7 @@
     @author: Martin Laprise
 
 '''
+import logging
 import pickle
 import itertools
 import datetime
@@ -24,10 +25,11 @@ class LinearModel(object):
     '''
     Base class for all the linear prediction model
     '''
+    _logger_name = 'mfrec.linearmodel'
 
     def __init__(self):
         object.__init__(self)
-
+        self.logger = logging.getLogger(self._logger_name)
         # Sparse Matrix containing the training data
         self.relationship_matrix = None
         self.relationship_matrix_csc = None
@@ -76,9 +78,12 @@ class BaseRecommender(object):
 
     PARAMETERS_INDEX = {}
 
+    _logger_name = 'mfrec.recommender'
+
     def __init__(self, nbr_users = 4, nbr_items = 6, parameters = None):
         object.__init__(self)
-        #self.logger.info('Initializing a Recommendation Engine')
+        self.logger = logging.getLogger(self._logger_name)
+        self.logger.info('Initializing a Recommendation Engine')
 
         # The number of latent features to use in an SVD-based recommender.
         self.dimensionality = 40

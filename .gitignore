@@ -1,5 +1,6 @@
 *.html
 *.pyc
 dist/
+build/
 mfrec.egg-info/
 lib/build/

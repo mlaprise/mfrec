@@ -1,3 +1,4 @@
+import logging
 import numpy as np
 import time
 import matplotlib.pyplot as plt
@@ -7,7 +8,7 @@ from mfrec.recommendation.metrics import test_predict_rating, precision_recall
 from mfrec.recommendation.wrmf import WRMFRecommender
 from mfrec.graph.similarity_graph import SimilarityGraph
 
-
+logging.basicConfig(level=logging.INFO, filename='recommender.log')
 
 if __name__ == '__main__':
     import os
