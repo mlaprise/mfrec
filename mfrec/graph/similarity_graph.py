@@ -18,8 +18,9 @@ class SimilarityGraph(object):
     def add_node(self, n):
         if not self.similarity_graph.has_node(n):
             self.similarity_graph.add_node(n)
-            for key, value in self.nodes_attributes.iteritems():
-                self.similarity_graph.node[n][key] = value[n]
+            if self.nodes_attributes:
+                for key, value in self.nodes_attributes.iteritems():
+                    self.similarity_graph.node[n][key] = value[n]
 
     def add_edge(self, n1, n2, weight=None):
         if not self.similarity_graph.has_edge(n1, n2):
@@ -35,7 +36,6 @@ class SimilarityGraph(object):
             related_nodes, related_scores = self.recommender.similar_items_by_label(node_title, MAX_NBR_RELATED, similarity_threshold = min_score, similarities_output=True)
             for related in zip(related_nodes, related_scores):
                 self.add_edge(node_title, related[0], float(related[1]))
-                #similarity_graph.add_weighted_edges_from([(topic_title, cbrt.topics[related['id']], related['score'])])
                 print "%s --%s--> %s" % (node_title, related[1], related[0])
 
     def write_graph(self, name = "similarity_graph.graphml"):
