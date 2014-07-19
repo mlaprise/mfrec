@@ -30,7 +30,7 @@ if __name__ == '__main__':
                       'feature_init': 0.1,
                       'regularization_model': 0.015,
                       'nbr_features': 20,
-                      'neighborhood' : 1500} 
+                      'neighborhood' : 1500}
 
         '''
         Instantiate a CrowdBaseRecommender
@@ -65,6 +65,6 @@ if __name__ == '__main__':
         print similars
 
         # Build similarity graph
-        sg = SimilarityGraph(MovieLensRecommender)
-        sg.build_graph()
-        sg.write_graph()
+        #sg = SimilarityGraph(MovieLensRecommender)
+        #sg.build_graph()
+        #sg.write_graph()
