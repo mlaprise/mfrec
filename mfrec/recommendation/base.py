@@ -20,6 +20,7 @@ from scipy.sparse import csc_matrix, find
 from sparsesvd import sparsesvd
 from scipy.sparse import lil_matrix
 
+class Error(Exception): pass
 
 class LinearModel(object):
     '''

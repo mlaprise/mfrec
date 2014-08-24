@@ -17,20 +17,19 @@ import scipy.sparse
 from scipy.sparse import find
 from scipy.sparse import lil_matrix, csc_matrix, find
 
-from mfrec.config import base
 from mfrec.recommendation.base import BaseRecommender
 from mfrec.recommendation.mf import MFRecommender
 from mfrec.recommendation.metrics import test_predict_rating
-from mfrec.lib.machinelearning.gd_estimator import estimator_loop, estimator_loop2, estimator_loop_with_bias, estimator_loop_with_bias_dev, \
+from mfrec.lib.gd_estimator import estimator_loop, estimator_loop2, estimator_loop_with_bias, estimator_loop_with_bias_dev, \
                                                            estimator_subloop, predictor_subloop, estimator_loop_without_bias, \
                                                            estimator_loop_with_implicit_feedback, estimator_loop_with_learned_bias
 
 class GDRecommender(MFRecommender):
     '''
-    
-    Recommender based on a regularized singular value decomposition minimize with a 
+
+    Recommender based on a regularized singular value decomposition minimize with a
     Stochastic Gradient Descent method
-    
+
     This recommender use a Stochastic Gradient Descent for computing each features. When the matrix is not sparse
     this method is equivalent to a Singular Value Decomposition. Each feature is compute using the Gradient Descent
     on the error a single rating (pseudo-stochastic). The over-fitting is control using a regularization term (K)
@@ -38,23 +37,23 @@ class GDRecommender(MFRecommender):
 
     Complexity : The SGD method scale like O(kni) where n ist the number of users, k the number of epoch, and i is
                  the number average number of non-zero attributes per item.
-    
+
     Training on 10M ratings
         * model: 40 features
         * dataset : MovieLens Dataset 10M (69879 users and 10678 items)
-        * time: 49 minutes 
+        * time: 49 minutes
         * Machine: Core i5 2.3ghz with 4GB
 
     reference:
-    
+
     * Simon Funk's article
       http://sifter.org/~simon/journal/20061211.html
-    
+
     * Yehuda Koren, Factorization meets the neighborhood: a multifaceted collaborative filtering model, Proceeding of the
       14th ACM SIGKDD international conference on Knowledge discovery and data mining, August 24-27, 2008, Las Vegas, Nevada,
       USA  [doi>10.1145/1401890.1401944]
       http://www.commendo.at/references/files/kdd08.pdf
-    
+
     '''
 
 
@@ -89,7 +88,7 @@ class GDRecommender(MFRecommender):
 
         if parameters:
             self.set_parameters(parameters)
-            
+
         self.batch_size = 10
         self.rmse_history = np.zeros(self.max_epochs)
         self.rating_cache = None
@@ -101,37 +100,32 @@ class GDRecommender(MFRecommender):
         self.items_feedback = None
         self.feedback_rated = None
         self.feedback_hash = None
-    
-    
+
     def __repr__(self):
         string = 'Gradient Descent based Recommendation Engine\n'
         string += 'Number of users: ' + str(self.nbr_users) + '\n'
         string += 'Number of items: ' + str(self.nbr_items) + '\n'
         string += 'Dimensionality: ' + str(self.dimensionality) + '\n'
         return string
-        
     
-    def set_ratings_iterator(self, iterator): 
+    def set_ratings_iterator(self, iterator):
         self.mongodb_iterator = iterator
-
 
     def get_rmse_history(self):
         index = self.rmse_history.nonzero()
         return self.rmse_history[index]
 
-    
     def get_nbr_ratings(self):
         '''
         Return the number of non-zero item in the relationshion_matrix (nbr. of ratings).
         '''
         return find(self.relationship_matrix)[1].shape[0]
-    
 
     def feature_training_prototype_p(self, verbose = False, randomize = False):
         '''
         Compute each features using a Gradient Descent approach. This method is the pure python version of the 
         feature_training() method. It should be only used as a dev tools (very slow). 
-        
+
         This particular version is a prototype for a parallel version of the feature_training_prototype using
         the approach described in Zinkevich et al (Parallelized Stochastic Gradient Descent, 2011). The sections
         called Machine 1 and Machine 2 can be move on a different process, thread or machine with the respective
@@ -139,11 +133,11 @@ class GDRecommender(MFRecommender):
         each model parameters computed on each machine. It's pretty simple but Zinkevich et al. proved the
         convergence of this method.
         '''
-        
+
         rmse = 2.0
         rmse_last = 2.0
         self.rating_cache = np.zeros(self.relationship_matrix.get_shape())
-        
+
         self.svd_v = np.zeros([self.dimensionality, self.nbr_users]) + self.feature_init
         self.svd_u = np.zeros([self.dimensionality, self.nbr_items]) + self.feature_init 
 
@@ -157,17 +151,17 @@ class GDRecommender(MFRecommender):
             if verbose:
                 print "Training the feature " + str(f)
             epoch = 0
-            
+    
             while (epoch < self.min_epochs or rmse <= rmse_last - self.min_improvement):
                 squared_error = 0.0
                 rmse_last = rmse
-              
+
                 self.w1a = self.svd_v[f,:] 
                 self.w2a = self.svd_u[f,:] 
                 self.w1b = self.svd_v[f,:] 
                 self.w2b = self.svd_u[f,:] 
 
-                # Machine 1                               
+                # Machine 1
                 for i in batch_index[cuts[0]:cuts[1]]:
                     user_index = ratings_index[i,0]
                     feature_index = ratings_index[i,1]
